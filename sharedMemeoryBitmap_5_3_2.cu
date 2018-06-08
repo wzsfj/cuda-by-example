@@ -4,7 +4,7 @@
 #define DIM 1024
 #define PI 3.1415926535897932f
 
-__global__ void kernel( unsigned char *prt)
+__global__ void kernel( unsigned char *ptr)
 {
 	//  map from threadIdx/blockIdx to pixel position
 	int x = threadIdx.x + blockIdx.x * blockDim.x;
@@ -16,9 +16,11 @@ __global__ void kernel( unsigned char *prt)
 	// calculate the value at that position
 	const float period = 128.0f;
 	shared[threadIdx.x][threadIdx.y] = 
-			25 * ( sinf(x*2.0f*PI / period) + 1.0f ) * 
+			255 * ( sinf(x*2.0f*PI / period) + 1.0f ) * 
 				 ( sinf(y*2.0f*PI / period) + 1.0f ) / 4.0f; 
 
+	__syncthreads();
+	
 	ptr[offset*4 + 0] = 0;
 	ptr[offset*4 + 1] = shared[15-threadIdx.x][15-threadIdx.y];
 	ptr[offset*4 + 2] = 0;
